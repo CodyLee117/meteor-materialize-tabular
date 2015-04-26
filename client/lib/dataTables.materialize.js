@@ -1,13 +1,9 @@
-/*! DataTables Bootstrap integration
- * ©2011-2014 SpryMedia Ltd - datatables.net/license
- */
-
 /**
- * DataTables integration for Bootstrap 3. This requires Bootstrap 3 and
+ * DataTables integration for Materialize. This requires Materialize and
  * DataTables 1.10 or newer.
  *
  * This file sets the defaults and adds options to DataTables to style its
- * controls using Bootstrap. See http://datatables.net/manual/styling/bootstrap
+ * controls using Materialize. See http://datatables.net/manual/styling/materialize
  * for further information.
  */
 (function(window, document, undefined){
@@ -15,27 +11,28 @@
 var factory = function( $, DataTable ) {
 "use strict";
 
-
 /* Set the defaults for DataTables initialisation */
 $.extend( true, DataTable.defaults, {
 	dom:
-		"<'row'<'col-xs-6'l><'col-xs-6'f>r>" +
-		"<'row'<'col-xs-12't>>" +
-		"<'row'<'col-xs-6'i><'col-xs-6'p>>",
-	renderer: 'bootstrap'
+		"<'row'<'col s6'l><'col s6'f>r>" +
+		"<'row'<'col-s12't>>" +
+		"<'row'<'col s6'i><'col s6'p>>",
+	renderer: 'materialize'
 } );
+
+console.log(DataTable.ext.renderer)
 
 
 /* Default class modification */
 $.extend( DataTable.ext.classes, {
-	sWrapper:      "dataTables_wrapper form-inline dt-bootstrap",
-	sFilterInput:  "form-control input-sm",
-	sLengthSelect: "form-control input-sm"
+	sWrapper:      "dataTables_wrapper form-inline dt-materialize",
+	sFilterInput:  "",
+	sLengthSelect: ""
 } );
 
 
-/* Bootstrap paging button renderer */
-DataTable.ext.renderer.pageButton.bootstrap = function ( settings, host, idx, buttons, page, pages ) {
+/* Materialize paging button renderer */
+DataTable.ext.renderer.pageButton.materialize = function ( settings, host, idx, buttons, page, pages ) {
 	var api     = new DataTable.Api( settings );
 	var classes = settings.oClasses;
 	var lang    = settings.oLanguage.oPaginate;
@@ -73,13 +70,13 @@ DataTable.ext.renderer.pageButton.bootstrap = function ( settings, host, idx, bu
 						break;
 
 					case 'previous':
-						btnDisplay = lang.sPrevious;
+						btnDisplay = '<i class="mdi-navigation-chevron-left"></i>';
 						btnClass = button + (page > 0 ?
 							'' : ' disabled');
 						break;
 
 					case 'next':
-						btnDisplay = lang.sNext;
+						btnDisplay = '<i class="mdi-navigation-chevron-right"></i>';
 						btnClass = button + (page < pages-1 ?
 							'' : ' disabled');
 						break;
@@ -99,7 +96,7 @@ DataTable.ext.renderer.pageButton.bootstrap = function ( settings, host, idx, bu
 
 				if ( btnDisplay ) {
 					node = $('<li>', {
-							'class': classes.sPageButton+' '+btnClass,
+							'class': classes.sPageButton+' waves-effect '+btnClass,
 							'aria-controls': settings.sTableId,
 							'tabindex': settings.iTabIndex,
 							'id': idx === 0 && typeof button === 'string' ?
@@ -129,15 +126,15 @@ DataTable.ext.renderer.pageButton.bootstrap = function ( settings, host, idx, bu
 
 
 /*
- * TableTools Bootstrap compatibility
+ * TableTools Materialize compatibility
  * Required TableTools 2.1+
  */
 if ( DataTable.TableTools ) {
-	// Set the classes that TableTools uses to something suitable for Bootstrap
+	// Set the classes that TableTools uses to something suitable for Materialize
 	$.extend( true, DataTable.TableTools.classes, {
 		"container": "DTTT btn-group",
 		"buttons": {
-			"normal": "btn btn-default",
+			"normal": "btn btn-flat",
 			"disabled": "disabled"
 		},
 		"collection": {
@@ -155,7 +152,7 @@ if ( DataTable.TableTools ) {
 		}
 	} );
 
-	// Have the collection use a bootstrap compatible drop down
+	// Have the collection use a materialize compatible drop down
 	$.extend( true, DataTable.TableTools.DEFAULTS.oTags, {
 		"collection": {
 			"container": "ul",
