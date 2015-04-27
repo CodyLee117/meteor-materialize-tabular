@@ -20,9 +20,6 @@ $.extend( true, DataTable.defaults, {
 	renderer: 'materialize'
 } );
 
-console.log(DataTable.ext.renderer)
-
-
 /* Default class modification */
 $.extend( DataTable.ext.classes, {
 	sWrapper:      "dataTables_wrapper form-inline dt-materialize",
