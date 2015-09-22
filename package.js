@@ -1,15 +1,24 @@
-/* global Package */
+/* global Package, Npm */
 
 Package.describe({
   name: 'nicolaslopezj:tabular-materialize',
   summary: 'Datatables for large or small datasets in Meteor',
-  version: '1.2.1',
+  version: '1.4.0',
   git: 'https://github.com/aldeed/meteor-tabular.git'
+});
+
+Npm.depends({
+  datatables: '1.10.7'
 });
 
 Package.onUse(function(api) {
   api.versionsFrom(['METEOR@0.9.4', 'METEOR@1.0']);
   api.use(['check', 'underscore', 'mongo', 'blaze', 'templating', 'reactive-var', 'tracker']);
+
+  // jquery is a weak reference in case you want to use a different package or
+  // pull it in another way, but regardless you need to make sure it is loaded
+  // before any tabular tables are rendered
+  api.use(['jquery'], 'client', {weak: true});
 
   api.use(['meteorhacks:subs-manager@1.2.0'], ['client', 'server'], {weak: true});
 
@@ -18,7 +27,7 @@ Package.onUse(function(api) {
   api.addFiles('common.js');
   api.addFiles('server/tabular.js', 'server');
   api.addFiles([
-    'client/lib/jquery.dataTables.min.js',
+    '.npm/package/node_modules/datatables/media/js/jquery.dataTables.js',
     'client/lib/dataTables.materialize.js',
     'client/lib/dataTables.materialize.css',
     'client/tabular.html',
