@@ -1,7 +1,7 @@
 /* global Package, Npm */
 
 Package.describe({
-  name: 'aldeed:tabular',
+  name: 'nicolaslopezj:tabular-materialize',
   summary: 'Datatables for large or small datasets in Meteor',
   version: '1.4.0',
   git: 'https://github.com/aldeed/meteor-tabular.git'
@@ -28,8 +28,8 @@ Package.onUse(function(api) {
   api.addFiles('server/tabular.js', 'server');
   api.addFiles([
     '.npm/package/node_modules/datatables/media/js/jquery.dataTables.js',
-    'client/lib/dataTables.bootstrap.js',
-    'client/lib/dataTables.bootstrap.css',
+    'client/lib/dataTables.materialize.js',
+    'client/lib/dataTables.materialize.css',
     'client/tabular.html',
     'client/util.js',
     'client/tableRecords.js',
