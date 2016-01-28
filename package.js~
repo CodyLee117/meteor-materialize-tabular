@@ -1,9 +1,9 @@
 /* global Package, Npm */
 
 Package.describe({
-  name: 'nicolaslopezj:tabular-materialize',
+  name: 'CodyLee117:tabular-materialize',
   summary: 'Datatables for large or small datasets in Meteor',
-  version: '1.5.0',
+  version: '1.4.0',
   git: 'https://github.com/aldeed/meteor-tabular.git'
 });
 

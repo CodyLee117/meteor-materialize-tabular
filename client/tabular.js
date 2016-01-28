@@ -23,6 +23,7 @@ var tabularOnRendered = function () {
   template.tabular.fields = null;
   template.tabular.searchFields = null;
   template.tabular.searchCaseInsensitive = true;
+  template.tabular.splitSearchByWhitespace = true;
   template.tabular.tableName = new ReactiveVar(null);
   template.tabular.options = new ReactiveVar({}, Util.objectsAreEqual);
   template.tabular.docPub = new ReactiveVar(null);
@@ -37,6 +38,7 @@ var tabularOnRendered = function () {
   var ajaxOptions = {
     // tell DataTables that we're getting the table data from a server
     serverSide: true,
+    processing: true,
     // define the function that DataTables will call upon first load and whenever
     // we tell it to reload data, such as when paging, etc.
     ajax: function (data, callback/*, settings*/) {
@@ -71,11 +73,12 @@ var tabularOnRendered = function () {
       template.tabular.sort.set(Util.getMongoSort(data.order, template.tabular.columns));
       // Update pubSelector
       var pubSelector = getPubSelector(
-        template.tabular.selector,
-        (data.search && data.search.value) || null,
-        template.tabular.searchFields,
-        template.tabular.searchCaseInsensitive,
-        data.columns || null
+          template.tabular.selector,
+          (data.search && data.search.value) || null,
+          template.tabular.searchFields,
+          template.tabular.searchCaseInsensitive,
+          template.tabular.splitSearchByWhitespace,
+          data.columns || null
       );
       template.tabular.pubSelector.set(pubSelector);
 
@@ -148,7 +151,17 @@ var tabularOnRendered = function () {
     tableInit(tabularTable, template);
 
     // Set/update everything else
-    template.tabular.searchCaseInsensitive = (tabularTable.options && tabularTable.options.search && tabularTable.options.search.caseInsensitive) || true;
+    template.tabular.searchCaseInsensitive = true;
+    template.tabular.splitSearchByWhitespace = true;
+
+    if (tabularTable.options && tabularTable.options.search) {
+      if (tabularTable.options.search.caseInsensitive === false) {
+        template.tabular.searchCaseInsensitive = false;
+      }
+      if (tabularTable.options.search.smart === false) {
+        template.tabular.splitSearchByWhitespace = false;
+      }
+    }
     template.tabular.options.set(tabularTable.options);
     template.tabular.tableName.set(tabularTable.name);
     template.tabular.docPub.set(tabularTable.pub);
@@ -177,12 +190,12 @@ var tabularOnRendered = function () {
     //console.log('tabular_getInfo autorun');
 
     Meteor.subscribe(
-      "tabular_getInfo",
-      template.tabular.tableName.get(),
-      template.tabular.pubSelector.get(),
-      template.tabular.sort.get(),
-      template.tabular.skip.get(),
-      template.tabular.limit.get()
+        "tabular_getInfo",
+        template.tabular.tableName.get(),
+        template.tabular.pubSelector.get(),
+        template.tabular.sort.get(),
+        template.tabular.skip.get(),
+        template.tabular.limit.get()
     );
   });
 
@@ -210,11 +223,20 @@ var tabularOnRendered = function () {
       return;
     }
 
+    // Extend with extraFields from table definition
+    var fields = template.tabular.fields;
+    if (fields) {
+      // Extend with extraFields from table definition
+      if (typeof template.tabular.tableDef.extraFields === 'object') {
+        fields = _.extend(_.clone(fields), template.tabular.tableDef.extraFields);
+      }
+    }
+
     template.tabular.tableDef.sub.subscribe(
-      template.tabular.docPub.get(),
-      tableName,
-      tableInfo.ids || [],
-      template.tabular.fields
+        template.tabular.docPub.get(),
+        tableName,
+        tableInfo.ids || [],
+        fields
     );
   });
 
@@ -251,7 +273,11 @@ var tabularOnRendered = function () {
 
     // We start with an empty table.
     // Data will be populated by ajax function now.
-    table = $tableElement.DataTable(options);
+    if($.fn.dataTable.isDataTable("#" + $tableElement.attr("id"))) {
+      table = $tableElement.DataTable();
+    } else {
+      table = $tableElement.DataTable(options);
+    }
   });
 
   template.autorun(function () {
@@ -321,8 +347,6 @@ var tabularOnRendered = function () {
     // Get data as array for DataTables to consume in the ajax function
     template.tabular.data = cursor.fetch();
 
-    template.tabular.isLoading.set(false);
-
     // For these types of reactive changes, we don't want to
     // reset the page we're on, so we pass `false` as second arg.
     // The exception is if we changed the results-per-page number,
@@ -336,12 +360,18 @@ var tabularOnRendered = function () {
       }
     }
 
+    template.tabular.isLoading.set(false);
   });
 
   // XXX Not working
   template.autorun(function () {
-    var visibility = template.tabular.isLoading.get() ? 'visible' : 'hidden';
-    template.$('.dataTables_processing').css('visibility', visibility);
+    var isLoading = template.tabular.isLoading.get();
+    //console.log('LOADING', isLoading);
+    if (isLoading) {
+      template.$('.dataTables_processing').show();
+    } else {
+      template.$('.dataTables_processing').hide();
+    }
   });
 
   // force table paging to reset to first page when we change page length
